@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "microwrite_preferences")
@@ -30,15 +31,23 @@ class SettingsRepository(private val context: Context) {
         val KEY_DEFAULT_NAV_MODE = stringPreferencesKey("default_nav_mode")
     }
 
-    val settingsFlow: Flow<AppSettings> = context.dataStore.data.map { preferences ->
-        AppSettings(
-            themeMode = preferences[KEY_THEME_MODE] ?: "SYSTEM",
-            dailyGoalSessions = preferences[KEY_DAILY_GOAL] ?: 2,
-            requireAllChecklistItems = preferences[KEY_REQUIRE_ALL_CHECKLIST] ?: false,
-            defaultTimerMinutes = preferences[KEY_DEFAULT_TIMER] ?: 2,
-            defaultNavMode = preferences[KEY_DEFAULT_NAV_MODE] ?: "SEQUENTIAL"
-        )
-    }
+    val settingsFlow: Flow<AppSettings> = context.dataStore.data
+        .catch { exception ->
+            if (exception is java.io.IOException) {
+                emit(androidx.datastore.preferences.core.emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            AppSettings(
+                themeMode = preferences[KEY_THEME_MODE] ?: "SYSTEM",
+                dailyGoalSessions = preferences[KEY_DAILY_GOAL] ?: 2,
+                requireAllChecklistItems = preferences[KEY_REQUIRE_ALL_CHECKLIST] ?: false,
+                defaultTimerMinutes = preferences[KEY_DEFAULT_TIMER] ?: 2,
+                defaultNavMode = preferences[KEY_DEFAULT_NAV_MODE] ?: "SEQUENTIAL"
+            )
+        }
 
     suspend fun setThemeMode(mode: String) {
         context.dataStore.edit { it[KEY_THEME_MODE] = mode }

@@ -79,6 +79,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import com.example.data.repository.ConflictResolution
 import com.example.data.validation.ParsedContentType
 import java.io.BufferedReader
@@ -635,6 +636,48 @@ private fun ExportTabContent(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Export Full Backup")
+                }
+            }
+        }
+
+        // Share App APK with Friends
+        val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+        val context = androidx.compose.ui.platform.LocalContext.current
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("share_apk_manage_card"),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+            shape = RoundedCornerShape(12.dp),
+            border = CardDefaults.outlinedCardBorder()
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Share App APK (Offline Installer)",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Share the MicroWrite Android APK directly with friends and study partners via Bluetooth, Nearby Share / Quick Share, WhatsApp, or Telegram. They can install and use it 100% offline without needing Google Play.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            com.example.util.ApkShareHelper.shareAppApk(context)
+                        }
+                    },
+                    modifier = Modifier.testTag("export_share_apk_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Share,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Share APK with Friends")
                 }
             }
         }

@@ -42,8 +42,11 @@ import com.example.ui.feature.settings.SettingsScreen
 import com.example.ui.feature.settings.SettingsViewModel
 import com.example.ui.feature.topicdetails.TopicDetailsScreen
 import com.example.ui.feature.topicdetails.TopicDetailsViewModel
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun MicroWriteNavApp(
@@ -53,6 +56,7 @@ fun MicroWriteNavApp(
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
     val app = context.applicationContext as Application
+    val coroutineScope = rememberCoroutineScope()
 
     // Determine if bottom bar should be visible
     val isBottomBarVisible = currentRoute in listOf(
@@ -77,23 +81,27 @@ fun MicroWriteNavApp(
                             onClick = {
                                 if (screen == Screen.PracticeRoot) {
                                     // Handle Practice Tab: check for active session, otherwise open library
-                                    val db = MicroWriteDatabase.getDatabase(context)
-                                    val active = runBlocking { db.topicProgressDao().observeLatestActiveTopic().first() }
-                                    if (active != null) {
-                                        navController.navigate(
-                                            Screen.PracticeSession.createRoute(
-                                                active.topicId,
-                                                active.writingMode,
-                                                active.currentSectionId
-                                            )
-                                        )
-                                    } else {
-                                        navController.navigate(Screen.Library.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        val db = MicroWriteDatabase.getDatabase(context)
+                                        val active = db.topicProgressDao().observeLatestActiveTopic().first()
+                                        withContext(Dispatchers.Main) {
+                                            if (active != null) {
+                                                navController.navigate(
+                                                    Screen.PracticeSession.createRoute(
+                                                        active.topicId,
+                                                        active.writingMode,
+                                                        active.currentSectionId
+                                                    )
+                                                )
+                                            } else {
+                                                navController.navigate(Screen.Library.route) {
+                                                    popUpTo(navController.graph.findStartDestination().id) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                    restoreState = true
+                                                }
                                             }
-                                            launchSingleTop = true
-                                            restoreState = true
                                         }
                                     }
                                 } else {
