@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -76,6 +78,8 @@ fun MicroWriteNavApp(
                 ) {
                     Screen.bottomNavItems.forEach { screen ->
                         val selected = currentRoute == screen.route
+                        val iconVector = (if (selected) screen.selectedIcon else screen.unselectedIcon)
+                            ?: Icons.Filled.Home
                         NavigationBarItem(
                             selected = selected,
                             onClick = {
@@ -116,7 +120,7 @@ fun MicroWriteNavApp(
                             },
                             icon = {
                                 Icon(
-                                    imageVector = if (selected) screen.selectedIcon!! else screen.unselectedIcon!!,
+                                    imageVector = iconVector,
                                     contentDescription = screen.title
                                 )
                             },

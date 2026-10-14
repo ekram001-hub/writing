@@ -66,6 +66,7 @@ sealed class Screen(
     )
 
     companion object {
-        val bottomNavItems = listOf(Home, Library, PracticeRoot, Manage)
+        val bottomNavItems: List<Screen>
+            get() = listOfNotNull(Home, Library, PracticeRoot, Manage)
     }
 }

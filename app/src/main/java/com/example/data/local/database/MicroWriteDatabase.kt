@@ -26,7 +26,7 @@ import com.example.data.local.entity.TopicProgressEntity
         PracticeSessionEntity::class,
         SelfReviewEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class MicroWriteDatabase : RoomDatabase() {

@@ -47,7 +47,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val database = MicroWriteDatabase.getDatabase(application)
     private val topicRepository = TopicRepository(database)
     private val practiceRepository = PracticeRepository(database)
-    private val settingsRepository = SettingsRepository(application)
+    private val settingsRepository = SettingsRepository.getInstance(application)
 
     private val _userMessage = MutableStateFlow<String?>(null)
 

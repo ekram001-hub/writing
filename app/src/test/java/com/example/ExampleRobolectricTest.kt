@@ -8,9 +8,15 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import org.junit.Rule
+
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [34])
 class ExampleRobolectricTest {
+
+    @get:Rule
+    val composeRule = createAndroidComposeRule<MainActivity>()
 
     @Test
     fun `read string from context`() {
@@ -20,7 +26,7 @@ class ExampleRobolectricTest {
     }
 
     @Test
-    fun `launch MainActivity without crash`() {
-        org.robolectric.Robolectric.buildActivity(MainActivity::class.java).setup()
+    fun `render MainActivity completely`() {
+        composeRule.waitForIdle()
     }
 }
